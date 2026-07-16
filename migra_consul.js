@@ -9,8 +9,8 @@ const readline = require('readline');
 const SERVIDORES = [
     { nome: "Local", url: "http://localhost:8500/v1/kv" },
     { nome: "Desenvolvimento", url: "http://10.160.4.73:30085/v1/kv" },
-    { nome: "Homologacao", url: "http://10.160.0.8:30085/v1/kv" },
-    { nome: "Producao", url: "http://10.0.0.10:8500/v1/kv" }
+    { nome: "Homologacao", url: "http://10.160.0.189:30085/v1/kv" },
+    { nome: "Producao GENBOT TEXTO", url: "http://10.161.6.211:30085/v1/kv" }
 ];
 
 const rl = readline.createInterface({
@@ -88,7 +88,7 @@ async function main() {
     }
 
     const ehDiretorio = caminhoOrigem.endsWith('/');
-    
+
     // Pergunta o novo caminho de destino
     let caminhoDestino = await question('Informe o caminho de DESTINO (Pressione ENTER para manter o mesmo da origem): ');
     caminhoDestino = tratarCaminho(caminhoDestino);
@@ -112,6 +112,7 @@ async function main() {
 
         if (respostaOrigem.statusCode !== 200) {
             console.log(`❌ Erro: Caminho não encontrado na origem. Status HTTP: ${respostaOrigem.statusCode}`);
+            await question('Pressione qualquer tecla para finalizar. \n');
             rl.close();
             return;
         }
@@ -120,6 +121,7 @@ async function main() {
 
         if (!Array.isArray(listaItens) || listaItens.length === 0) {
             console.log("❌ Erro: Nenhum dado retornado para o caminho informado.");
+            await question('Pressione qualquer tecla para finalizar. \n');
             rl.close();
             return;
         }
@@ -175,6 +177,7 @@ async function main() {
             const idxDestino = parseInt(opcaoDestino) - 1;
             if (isNaN(idxDestino) || idxDestino < 0 || idxDestino >= SERVIDORES.length) {
                 console.log("❌ Opção de destino inválida. Saindo...");
+                await question('Pressione qualquer tecla para finalizar. \n');
                 rl.close();
                 return;
             }
@@ -186,9 +189,9 @@ async function main() {
 
             for (const item of itensProcessados) {
                 const urlEnvio = `${destino.url}/${item.chaveDestino}`;
-                
-                const contentType = item.conteudo.trim().startsWith('{') || item.conteudo.trim().startsWith('[') 
-                    ? 'application/json' 
+
+                const contentType = item.conteudo.trim().startsWith('{') || item.conteudo.trim().startsWith('[')
+                    ? 'application/json'
                     : 'text/plain';
 
                 const respostaDestino = await request(urlEnvio, {
@@ -213,6 +216,7 @@ async function main() {
     } catch (error) {
         console.error("❌ Ocorreu um erro crítico durante a operação:", error.message || error);
     } finally {
+        await question('Pressione qualquer tecla para finalizar. \n');
         rl.close();
     }
 }
